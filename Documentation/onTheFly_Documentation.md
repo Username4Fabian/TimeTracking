@@ -1,10 +1,14 @@
-# Temporary Documentation to keep track of the progress: 
+# Temporary Documentation to keep track of the progress:
 
-## Documentation: 
+## Documentation:
 
 #### What ServerSide language to use?
 
 - **Java/Spring Boot:** Typically faster, better for high-concurrency and enterprise-scale applications.
 - **Python/Django:** Great for rapid development and data-driven apps, but generally slower in raw performance compared to Java.
 
-### Sources: 
+#### Java in use for first tests:
+
+Java in use, due to better scalability. Working Cat Detection on Clientside.
+
+### Sources:
