@@ -27,8 +27,6 @@ function loadCascadeFile(url) {
     });
 }
 
-// ... (earlier part of the script remains unchanged)
-
 // Initialize OpenCV objects and load the cascade file
 function onOpenCvReady() {
     src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
