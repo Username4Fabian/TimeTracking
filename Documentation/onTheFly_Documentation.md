@@ -11,4 +11,8 @@
 
 Java in use, due to better scalability. Working Cat Detection on Clientside.
 
+#### Motion Detection instead of Boat detection:
+
+https://codersblock.com/blog/motion-detection-with-javascript/
+
 ### Sources:
