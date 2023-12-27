@@ -1,20 +1,60 @@
-let isMotionDetected = false;
-let prevImageData;
-
 document.addEventListener('DOMContentLoaded', function() {
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
+    let isMotionDetected = false;
+    let prevImageData;
+    let mediaRecorder;
+    let recordedChunks = [];
+    let motionTimeout; // Define the variable
 
     // Access the webcam
     if (navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(function(stream) {
                 video.srcObject = stream;
+                setupRecorder(stream);
+                captureFrame();
             })
             .catch(function(error) {
-                console.log("Something went wrong!");
+                console.log("Something went wrong!", error);
             });
+    }
+
+    function setupRecorder(stream) {
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = function(event) {
+            if (event.data.size > 0) {
+                recordedChunks.push(event.data);
+            }
+        };
+
+        mediaRecorder.onstop = function() {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            sendVideoToServer(blob);
+            recordedChunks = [];
+        };
+    }
+
+    function startRecording() {
+        recordedChunks = [];
+        mediaRecorder.start();
+        setTimeout(() => mediaRecorder.stop(), 4000); // Record for 4 seconds
+    }
+
+    async function sendVideoToServer(blob) {
+        const formData = new FormData();
+        formData.append('video', blob, 'recorded.mp4');
+        try {
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const text = await response.text();
+            console.log('Server response: ', text);
+        } catch (error) {
+            console.error('Error sending video to server: ', error);
+        }
     }
 
     function captureFrame() {
@@ -24,6 +64,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (prevImageData) {
             isMotionDetected = detectMotion(prevImageData, currentImageData);
             updateMotionIndicator();
+            if (isMotionDetected && mediaRecorder.state !== "recording") {
+                startRecording();
+            }
         }
 
         prevImageData = currentImageData;
@@ -42,10 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         // Consider motion detected if a significant number of pixels have changed
-        return motionPixels > (currentImageData.width * currentImageData.height * 0.02); // Adjust threshold as needed
+        return motionPixels > (currentImageData.width * currentImageData.height * 0.02); // Adjust thres
     }
-
-    let motionTimeout;
 
     function updateMotionIndicator() {
         const indicator = document.getElementById('motionIndicator');
@@ -61,6 +102,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 250); // Delay of 1 second
         }
     }
-
-    captureFrame();
 });
