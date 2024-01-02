@@ -3,6 +3,12 @@ let pageLoaded = false;
 document.addEventListener('DOMContentLoaded', function() {
     pageLoaded = true;
 
+    populateVideoList().then(() => {
+        const videoList = document.getElementById('video-list');
+        // Scroll to the bottom of the list
+        videoList.lastChild.scrollIntoView();
+    });
+
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
@@ -112,6 +118,13 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error sending video to server: ', error);
         }
+
+        setTimeout(() => {
+            // Refresh the list of videos
+            const videoList = document.getElementById('video-list');
+            videoList.innerHTML = '';
+            populateVideoList();
+        },3000);
     }
 
     function captureFrame() {
@@ -168,5 +181,56 @@ document.addEventListener('DOMContentLoaded', function() {
                 video.style.borderColor = 'green';
             }, 250); // Delay of 1 second
         }
+    }
+
+    async function fetchVideos() {
+        try {
+            const response = await fetch('/videos');
+            const videos = await response.json();
+            return videos;
+        } catch (error) {
+            console.error('Error fetching videos: ', error);
+        }
+    }
+
+    async function populateVideoList() {
+        const videos = await fetchVideos();
+        const videoList = document.getElementById('video-list');
+        const sidebarRight = document.getElementById('sidebar-right');
+
+        videos.forEach(video => {
+            const listItem = document.createElement('li');
+
+            const thumbnail = document.createElement('img');
+            thumbnail.src = 'Images/Video_Icon.png'; // Replace with the path to your PNG icon
+            listItem.appendChild(thumbnail);
+
+            const videoDetails = document.createElement('div');
+            videoDetails.className = 'video-details';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = video.name;
+            nameSpan.className = 'video-name';
+            videoDetails.appendChild(nameSpan);
+
+            const sizeSpan = document.createElement('span');
+            sizeSpan.textContent = `File Size: ${(video.size / (1024 * 1024)).toFixed(2)} MB`;
+            sizeSpan.className = 'video-size';
+            videoDetails.appendChild(sizeSpan);
+
+            const dateSpan = document.createElement('span');
+            dateSpan.textContent = `Upload Date: ${new Date(video.uploadDate).toLocaleString()}`;
+            dateSpan.className = 'video-date';
+            videoDetails.appendChild(dateSpan);
+
+            listItem.appendChild(videoDetails);
+            videoList.appendChild(listItem);
+
+            /*
+            // Auto-scroll to the bottom if the user is hovering over the sidebar and not actively scrolling
+            if (sidebarRight.matches(':hover') || videoList.scrollTop + videoList.clientHeight === videoList.scrollHeight) {
+                videoList.lastChild.scrollIntoView({ behavior: 'smooth' });
+            } */
+        });
     }
 });

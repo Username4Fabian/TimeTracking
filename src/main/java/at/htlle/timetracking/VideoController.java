@@ -3,6 +3,7 @@ package at.htlle.timetracking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,6 +45,11 @@ public class VideoController {
         } catch (Exception e) {
             return "Upload failed: " + e.getMessage();
         }
+    }
+
+    @GetMapping("/videos")
+    public Iterable<Video> getVideos() {
+        return videoRepository.findAll();
     }
 
 

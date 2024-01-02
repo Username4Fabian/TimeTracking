@@ -184,3 +184,72 @@ h2 {
     right: 0; /* Align to the right */
     margin-top: 26px;
 }
+
+#sidebar-right {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    width: 500px;
+    background-color: #202225;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center; /* Center items horizontally */
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+#video-list table {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+#video-list td:first-child {
+    font-weight: bold;
+}
+
+#video-list li {
+    width: 450px;
+    display: flex;
+    background-color: #2c2f33;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+#video-list img {
+    width: 120px;
+    height: 90px;
+    margin-right: 10px;
+}
+
+#video-list .video-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#video-list .video-details span {
+    margin-bottom: 5px;
+}
+
+#video-list .video-details .video-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #dcddde;
+}
+
+#video-list .video-details .video-size,
+#video-list .video-details .video-date {
+    font-size: 12px;
+    color: #8e9297;
+}
+#video-list img {
+    width: 120px;
+    height: 90px;
+    margin-right: 10px;
+    object-fit: cover; /* Preserve aspect ratio while filling the element's box */
+}
