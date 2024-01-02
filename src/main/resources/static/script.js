@@ -1,4 +1,8 @@
+let pageLoaded = false;
+
 document.addEventListener('DOMContentLoaded', function() {
+    pageLoaded = true;
+
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
@@ -22,9 +26,14 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    let motionDetectionDelay = false;
+
     document.getElementById('toggle-motion').addEventListener('change', function() {
         this.classList.toggle('active');
         motionDetectionActive = this.checked;
+        // Add a delay after toggling motion detection
+        motionDetectionDelay = true;
+        setTimeout(() => motionDetectionDelay = false, 2000); // 2 seconds delay
     });
 
     let sensitivity = 150;
@@ -34,6 +43,30 @@ document.addEventListener('DOMContentLoaded', function() {
         sensitivity = 300 - this.value;
         // console.log('Sensitivity: ', sensitivity);
     });
+
+    window.addEventListener('blur', function() {
+        // Only add a delay if the page has finished loading
+        if (pageLoaded) {
+            motionDetectionDelay = true;
+            setTimeout(() => motionDetectionDelay = false, 2000); // 2 seconds delay
+        }
+    });
+
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            // Introduce a delay when the tab becomes visible
+            introduceMotionDetectionDelay();
+        }
+    });
+
+    function introduceMotionDetectionDelay() {
+        motionDetectionDelay = true; // Suspend motion detection
+        setTimeout(() => {
+            motionDetectionDelay = false; // Resume motion detection after the delay
+            prevImageData = null; // Reset previous image data
+        }, 2000); // Set delay to 2 seconds
+    }
+
 
     function setupRecorder(stream) {
         mediaRecorder = new MediaRecorder(stream);
@@ -104,6 +137,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function detectMotion(prevImageData, currentImageData) {
+        if (motionDetectionDelay || !document.hasFocus()) {
+            return false;
+        }
+
         let motionPixels = 0;
         for (let i = 0; i < currentImageData.data.length; i += 4) {
             let rDiff = Math.abs(prevImageData.data[i] - currentImageData.data[i]);

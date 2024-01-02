@@ -1,19 +1,21 @@
 package at.htlle.timetracking;
 
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.io.File;
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
 
 @RestController
 public class VideoController {
-
+    @Autowired
+    private VideoRepository videoRepository;
     private static final Logger logger = LoggerFactory.getLogger(VideoController.class);
 
     @PostMapping("/upload")
@@ -28,8 +30,15 @@ public class VideoController {
             double fileSizeInMb = file.getSize() / (1024.0 * 1024.0);
             logger.info("Received file: " + originalFileName + ", size: " + fileSizeInMb + " MB");
             logger.info("File size: " + file.getSize());
-
             saveFile(file, fileName);
+
+            // Save video data to the database
+            Video video = new Video();
+            video.setName(fileName); // Use the generated file name
+            video.setPath("/uploaded-videos/" + fileName);
+            video.setSize(file.getSize()); // Save the file size
+            video.setUploadDate(LocalDateTime.now()); // Save the upload date
+            videoRepository.save(video);
 
             return "File uploaded successfully: " + fileName;
         } catch (Exception e) {
@@ -40,9 +49,9 @@ public class VideoController {
 
 
     private String generateFileName(String extension) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
-        LocalDateTime now = LocalDateTime.now();
-        return dtf.format(now) + extension;
+        // Get the current max ID from the database and add 1
+        long currentNumber = videoRepository.findMaxId() + 1;
+        return "video_" + currentNumber + extension;
     }
 
     private void saveFile(MultipartFile file, String fileName) throws IOException {
