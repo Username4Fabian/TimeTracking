@@ -4,12 +4,12 @@ body {
     font-family: 'Whitney', sans-serif;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start; /* Align content to the start (top) */
     align-items: center;
     height: 100vh;
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
+    margin-top: 15px;
+    margin-left: -650px
 }
 
 button {
