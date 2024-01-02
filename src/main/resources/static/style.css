@@ -253,3 +253,9 @@ h2 {
     margin-right: 10px;
     object-fit: cover; /* Preserve aspect ratio while filling the element's box */
 }
+
+#deleteAllButton {
+    position: absolute;
+    bottom: 10px; /* Position it at the bottom of the sidebar */
+    width: 40px; /* Make the button small */
+}

@@ -3,15 +3,18 @@ package at.htlle.timetracking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 @RestController
 public class VideoController {
@@ -52,7 +55,25 @@ public class VideoController {
         return videoRepository.findAll();
     }
 
+    @DeleteMapping("/delete-videos")
+    public ResponseEntity<Void> deleteVideos() {
+        try {
+            // Delete all videos from the database
+            videoRepository.deleteAll();
 
+            // Delete all video files from the file system
+            Path directory = Paths.get(System.getProperty("user.dir") + "/uploaded-videos/");
+            Files.walk(directory)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            logger.error("Error deleting videos: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     private String generateFileName(String extension) {
         // Get the current max ID from the database and add 1
