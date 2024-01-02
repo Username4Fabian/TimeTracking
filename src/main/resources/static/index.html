@@ -6,11 +6,36 @@
 </head>
 <body>
 <div id="video-container">
-    <video id="video" width="640" height="480" autoplay></video>
-    <canvas id="canvas" width="640" height="480" style="display: none"></canvas>
+    <div id="video-label">
+        <h2>Live-Cam:</h2>
+        <video id="video" width="640" height="480" autoplay></video>
+        <canvas id="canvas" width="640" height="480" style="display: none"></canvas>
+    </div>
 </div>
+<div id="sidebar">
+    <h2>Settings</h2>
 
-<div id="motionIndicator" style="width: 50px; height: 50px; border-radius: 25px; background-color: grey; position: absolute; top: 20px; right: 20px;"></div>
+    <div class="switch-container">
+        <div>
+            <label>Motion Detection</label>
+            <label class="switch">
+                <input type="checkbox" id="toggle-motion">
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <div class="switch-container">
+        <div>
+            <label>Sensitivity:</label>
+        </div>
+        <div>
+            <input type="range" min="100" max="200" value="150" step="10" id="sensitivity-slider">
+        </div>
+    </div>
+</div>
 
 <script src="script.js"></script>
 </body>

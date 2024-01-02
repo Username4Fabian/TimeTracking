@@ -15,4 +15,11 @@ Java in use, due to better scalability. Working Cat Detection on Clientside.
 
 https://codersblock.com/blog/motion-detection-with-javascript/
 
+
+### Using React:
+
+https://www.youtube.com/watch?v=Tn6-PIqc4UM
+
+https://legacy.reactjs.org/docs/faq-structure.html
+
 ### Sources:
