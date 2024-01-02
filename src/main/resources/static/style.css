@@ -133,6 +133,12 @@ input:checked + .slider:before {
     width: 100%;
 }
 
+.switch-container > div {
+    display: flex;
+    align-items: flex-end; /* Align items to the bottom */
+    justify-content: space-between;
+}
+
 input[type=range] {
     background: #ccc;
     margin-top: 8px;
