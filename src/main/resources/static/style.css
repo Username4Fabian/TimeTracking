@@ -136,6 +136,10 @@ input:checked + .slider:before {
 input[type=range] {
     background: #ccc;
     margin-top: 8px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    background: #36393f; /* Same color as the main background */
 }
 
 h2 {
@@ -149,4 +153,28 @@ h2 {
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
+}
+
+.slider-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+    height: 40px; /* Adjust as needed */
+}
+
+.slider-container span {
+    color: #7a8291;
+    font-size: 10px;
+    bottom: 0;
+}
+
+.slider-container span:first-child {
+    left: 0; /* Align to the left */
+    margin-top: 26px;
+}
+
+.slider-container span:last-child {
+    right: 0; /* Align to the right */
+    margin-top: 26px;
 }
