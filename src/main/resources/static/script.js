@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    const autoscrollCheckbox = document.getElementById('autoscroll');
+    autoscrollCheckbox.checked = true;
+
     let motionDetectionDelay = false;
 
     document.getElementById('toggle-motion').addEventListener('change', function() {
@@ -242,11 +245,9 @@ document.addEventListener('DOMContentLoaded', function() {
             listItem.appendChild(videoDetails);
             videoList.appendChild(listItem);
 
-            /*
-            // Auto-scroll to the bottom if the user is hovering over the sidebar and not actively scrolling
-            if (sidebarRight.matches(':hover') || videoList.scrollTop + videoList.clientHeight === videoList.scrollHeight) {
+            if (autoscrollCheckbox.checked) {
                 videoList.lastChild.scrollIntoView({ behavior: 'smooth' });
-            } */
+            }
         });
     }
 });

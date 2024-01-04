@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
 @Entity
 public class Video {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "VIDEO_SEQ")
+    @SequenceGenerator(name = "VIDEO_SEQ", sequenceName = "VIDEO_SEQ", allocationSize = 1)
     private Long id;
     private String name;
     private String path;

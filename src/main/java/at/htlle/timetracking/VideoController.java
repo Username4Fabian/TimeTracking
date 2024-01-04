@@ -1,15 +1,20 @@
 package at.htlle.timetracking;
 
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -68,12 +73,17 @@ public class VideoController {
                     .map(Path::toFile)
                     .forEach(File::delete);
 
+            // Reset the sequence
+            videoRepository.resetSequence();
+
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             logger.error("Error deleting videos: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
 
     private String generateFileName(String extension) {
         // Get the current max ID from the database and add 1
@@ -89,4 +99,6 @@ public class VideoController {
 
         file.transferTo(new File(directory, fileName));
     }
+
+
 }
