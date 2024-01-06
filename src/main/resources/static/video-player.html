@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Video Player</title>
+    <link rel="stylesheet" href="style_videoplayer.css">
+    <link rel="icon" href="Images/browser.ico">
+</head>
+<body>
+<video id="video-player" controls></video>
+
+<form id="race-participant-form">
+    <label for="startNr">Start Number:</label><br>
+    <input type="number" id="startNr" name="startNr"><br>
+    <label for="finishTime">Finish Time:</label><br>
+    <input type="datetime-local" id="finishTime" name="finishTime"><br>
+    <label for="name">Name:</label><br>
+    <input type="text" id="name" name="name"><br>
+    <label for="databaseEntryTime">Database Entry Time:</label><br>
+    <input type="datetime-local" id="databaseEntryTime" name="databaseEntryTime"><br>
+    <input type="submit" value="Submit">
+</form>
+
+</body>
+<script src="script_videoplayer.js"></script>
+</html>
