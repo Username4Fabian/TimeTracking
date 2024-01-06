@@ -119,6 +119,43 @@ public class VideoController {
         }
     }
 
+    @GetMapping("/uploaded-videos/{fileName}")
+    public ResponseEntity<Resource> serveVideoFile(@PathVariable String fileName) {
+        try {
+            Path path = Paths.get(System.getProperty("user.dir") + "/src/main/resources/static/uploaded-videos/" + fileName);
+            Resource resource = new UrlResource(path.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"").body(resource);
+            } else {
+                throw new RuntimeException("Could not read the file!");
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+ /*   @RequestMapping(value = "/videos/{videoId}", method = RequestMethod.GET)
+    public ResponseEntity<Resource> serveVideo(@PathVariable String videoId) {
+        try {
+            // Replace "path/to/videos" with the actual path to your videos directory
+            Path videoPath = Paths.get(System.getProperty("user.dir") + "/src/main/resources/static/uploaded-videos/video_"+ videoId + ".mp4");
+            logger.info("Serving video at path: " + videoPath);
+            if (!Files.exists(videoPath)) {
+                logger.warn("Video file does not exist: " + videoPath);
+                return ResponseEntity.notFound().build();
+            }
+            Resource video = new UrlResource(videoPath.toUri());
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + video.getFilename() + "\"")
+                    .body(video);
+        } catch (Exception e) {
+            logger.error("Error serving video: ", e);
+            return ResponseEntity.notFound().build();
+        }
+    } */
+
     private String generateFileName(String extension) {
         // Get the current max ID from the database and add 1
         long currentNumber = videoRepository.findMaxId() + 1;
@@ -160,4 +197,7 @@ public class VideoController {
         });
         while (mediaReader.readPacket() == null) ; // start processing
     }
+
+
+
 }

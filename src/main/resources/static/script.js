@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
             listItem.appendChild(videoDetails);
 
             const videoLink = document.createElement('a');
-            videoLink.href = `/video-player.html?video=${video.path}`;
+            videoLink.href = `/video-player.html?video=${video.name}`;
             videoLink.target = '_blank';
             videoLink.appendChild(listItem);
 

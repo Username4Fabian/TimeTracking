@@ -1,0 +1,31 @@
+body {
+    background-color: #36393f;
+    color: #dcddde;
+    font-family: 'Whitney', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align content to the start (top) */
+    align-items: center;
+    height: 100vh;
+    box-sizing: border-box;
+    margin-top: 15px;
+    margin-left: -650px
+}
+
+#video {
+    border-radius: 15px;
+}
+
+button {
+    background-color: #7289da;
+    color: #ffffff;
+    border: none;
+    border-radius: 3px;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button:hover, button.active {
+    background-color: #677bc4;
+}
