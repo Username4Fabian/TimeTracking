@@ -254,8 +254,20 @@ h2 {
     object-fit: cover; /* Preserve aspect ratio while filling the element's box */
 }
 
-#deleteAllButton {
-    position: absolute;
+.deleteAllButton {
     bottom: 10px; /* Position it at the bottom of the sidebar */
     width: 40px; /* Make the button small */
+    margin: 30px;
+    margin-bottom: 4px;
+    opacity: 0.5;
+}
+
+#button-container {
+    position: fixed;
+    bottom: 0;
+    left: 6%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: space-between;
+
 }

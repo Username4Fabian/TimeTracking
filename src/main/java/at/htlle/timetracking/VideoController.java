@@ -31,6 +31,8 @@ import java.util.concurrent.CompletableFuture;
 public class VideoController {
     @Autowired
     private VideoRepository videoRepository;
+    @Autowired
+    private RaceParticipantRepository raceParticipantRepository;
     private static final Logger logger = LoggerFactory.getLogger(VideoController.class);
 
     @PostMapping("/upload")
@@ -73,6 +75,19 @@ public class VideoController {
     @GetMapping("/videos")
     public Iterable<Video> getVideos() {
         return videoRepository.findAll();
+    }
+
+    @DeleteMapping("/delete-racers")
+    public ResponseEntity<Void> deleteRacers() {
+        try {
+            // Delete all racers from the database
+            raceParticipantRepository.deleteAll();
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            logger.error("Error deleting racers: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/delete-videos")

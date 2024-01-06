@@ -68,19 +68,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    const deleteAllButton = document.getElementById('deleteAllButton');
-    deleteAllButton.addEventListener('click', async function() {
+    const deleteVideosButton = document.getElementById('deleteVideos');
+    const deleteRacerButton = document.getElementById('deleteRacer');
+
+    deleteVideosButton.addEventListener('click', async function() {
         try {
             const response = await fetch('/delete-videos', { method: 'DELETE' });
             if (response.ok) {
                 console.log('All videos deleted');
                 // Clear the video list
                 document.getElementById('video-list').innerHTML = '';
+                // Fetch the videos again to update the videos array
+                fetchVideos();
             } else {
                 console.error('Failed to delete videos');
             }
         } catch (error) {
             console.error('Error deleting videos: ', error);
+        }
+    });
+
+    deleteRacerButton.addEventListener('click', async function() {
+        try {
+            const response = await fetch('/delete-racers', { method: 'DELETE' });
+            if (response.ok) {
+                console.log('All racers deleted');
+                // You might want to clear the racer list here
+            } else {
+                console.error('Failed to delete racers');
+            }
+        } catch (error) {
+            console.error('Error deleting racers: ', error);
         }
     });
 

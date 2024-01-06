@@ -6,19 +6,29 @@
     <link rel="icon" href="Images/browser.ico">
 </head>
 <body>
-<video id="video-player" controls></video>
+<div id="video-container">
+    <h2 id="video-headline"></h2>
+    <video id="video-player" controls></video>
+    <div id="video-controls">
+        <button id="prev-video">Previous</button>
+        <button id="next-video">Next</button>
+    </div>
+</div>
 
-<form id="race-participant-form">
-    <label for="startNr">Start Number:</label><br>
-    <input type="number" id="startNr" name="startNr"><br>
-    <label for="finishTime">Finish Time:</label><br>
-    <input type="datetime-local" id="finishTime" name="finishTime"><br>
-    <label for="name">Name:</label><br>
-    <input type="text" id="name" name="name"><br>
-    <label for="databaseEntryTime">Database Entry Time:</label><br>
-    <input type="datetime-local" id="databaseEntryTime" name="databaseEntryTime"><br>
-    <input type="submit" value="Submit">
-</form>
+<div id="mySidebar" class="sidebar">
+    <h2>Input Values</h2>
+    <form id="race-participant-form">
+        <label for="startNr">Start Number:</label><br>
+        <input type="number" id="startNr" name="startNr"><br>
+        <label for="finishTime">Finish Time:</label><br>
+        <input type="datetime-local" id="finishTime" name="finishTime"><br>
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name"><br>
+        <label for="databaseEntryTime">Database Entry Time:</label><br>
+        <input type="datetime-local" id="databaseEntryTime" name="databaseEntryTime"><br>
+        <input type="submit" value="Submit">
+    </form>
+</div>
 
 </body>
 <script src="script_videoplayer.js"></script>
