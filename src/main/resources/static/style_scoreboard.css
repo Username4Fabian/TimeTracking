@@ -1,0 +1,78 @@
+
+body {
+    background-color: #36393f;
+    color: #dcddde;
+    font-family: 'Whitney', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100vh;
+    box-sizing: border-box;
+    margin-top: 15px;
+
+}
+
+h1 {
+    margin-top: -3px;
+    margin-bottom: 18px;
+    font-size: 250%;
+}
+
+button {
+    background-color: #7289da;
+    color: #ffffff;
+    border: none;
+    border-radius: 3px;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button:hover, button.active {
+    background-color: #677bc4;
+}
+
+/* style_scoreboard.css */
+
+#scoreboard {
+    width: 95%;
+    background-color: #2c2f33;
+    color: #dcddde;
+    font-family: 'Whitney', sans-serif;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden; /* Add this line to apply the border radius to the inner elements */
+    border: 5px dashed #202225;
+}
+
+#scoreboard th:first-child, #scoreboard td:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+#scoreboard th:last-child, #scoreboard td:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#scoreboard th, #scoreboard td {
+    border: 1px solid #202225;
+    padding: 8px;
+    text-align: left;
+}
+
+#scoreboard tr:nth-child(even) {
+    background-color: #36393f;
+}
+
+#scoreboard td:first-child {
+    font-weight: bold;
+}
+
+#scoreboard img {
+    width: 120px;
+    height: 90px;
+    margin-right: 10px;
+    object-fit: cover;
+}

@@ -149,3 +149,7 @@ window.onload = function() {
             console.error('Error:', error);
         });
 }
+
+function openScoreboard() {
+    window.open('/scoreboard.html', '_blank');
+}

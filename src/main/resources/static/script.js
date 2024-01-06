@@ -274,3 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+function openScoreboard() {
+    window.open('/scoreboard.html', '_blank');
+}
