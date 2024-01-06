@@ -82,6 +82,8 @@ public class VideoController {
         try {
             // Delete all racers from the database
             raceParticipantRepository.deleteAll();
+            raceParticipantRepository.resetSequence();
+
 
             return ResponseEntity.ok().build();
         } catch (Exception e) {

@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 public class RaceParticipant {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "RACEPARTICIPANT_SEQ")
+    @SequenceGenerator(name = "RACEPARTICIPANT_SEQ", sequenceName = "RACEPARTICIPANT_SEQ", allocationSize = 1)
     private Long id;
 
     private int startNr;
