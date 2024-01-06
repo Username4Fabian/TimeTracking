@@ -86,22 +86,66 @@ form.addEventListener('submit', function(event) {
     const startNr = document.getElementById('startNr').value;
     const finishTime = document.getElementById('finishTime').value;
     const name = document.getElementById('name').value;
-    const databaseEntryTime = document.getElementById('databaseEntryTime').value;
 
-    const data = { startNr, finishTime, name, databaseEntryTime };
+    const video = videos.find(video => video.name === videoName);
+    if (video) {
+        const uploadDate = new Date(video.uploadDate);
+        const finishTimeParts = finishTime.split(':');
+        const hours = parseInt(finishTimeParts[0]);
+        const minutes = parseInt(finishTimeParts[1]);
+        const seconds = parseInt(finishTimeParts[2].split('.')[0]);
+        const milliseconds = parseInt(finishTimeParts[2].split('.')[1]);
 
-    fetch('/race-participants', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    })
+        uploadDate.setHours(hours, minutes, seconds, milliseconds);
+        const combinedDateTime = uploadDate.toISOString();
+
+        const data = { startNr, finishTime: combinedDateTime, name };
+
+        fetch('/race-participants', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+});
+
+function formatUploadDate(dateString) {
+    const date = new Date(dateString);
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+    let milliseconds = date.getMilliseconds();
+
+    // Pad the hours, minutes, seconds and milliseconds with leading zeros if they are less than 10
+    hours = hours < 10 ? '0' + hours : hours;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+    milliseconds = milliseconds < 100 ? (milliseconds < 10 ? '00' + milliseconds : '0' + milliseconds) : milliseconds;
+
+    return `${hours}:${minutes}:${seconds}.${milliseconds}`; // Return the time part in the format HH:MM:SS.sss
+}
+
+window.onload = function() {
+    fetch('/videos')
         .then(response => response.json())
         .then(data => {
-            console.log('Success:', data);
+            videos = data;
+            const video = videos.find(video => video.name === videoName);
+            if (video) {
+                const finishTimeInput = document.getElementById('finishTime');
+                finishTimeInput.value = formatUploadDate(video.uploadDate);
+            }
         })
         .catch((error) => {
             console.error('Error:', error);
         });
-});
+}

@@ -18,14 +18,16 @@
 <div id="mySidebar" class="sidebar">
     <h2>Input Values</h2>
     <form id="race-participant-form">
+
         <label for="startNr">Start Number:</label><br>
         <input type="number" id="startNr" name="startNr"><br>
-        <label for="finishTime">Finish Time:</label><br>
-        <input type="datetime-local" id="finishTime" name="finishTime"><br>
+
         <label for="name">Name:</label><br>
         <input type="text" id="name" name="name"><br>
-        <label for="databaseEntryTime">Database Entry Time:</label><br>
-        <input type="datetime-local" id="databaseEntryTime" name="databaseEntryTime"><br>
+
+        <label for="finishTime">Finish Time:</label><br>
+        <input type="time" id="finishTime" name="finishTime" step="0.001">
+
         <input type="submit" value="Submit">
     </form>
 </div>

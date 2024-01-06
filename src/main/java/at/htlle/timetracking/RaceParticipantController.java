@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/race-participants")
 public class RaceParticipantController {
@@ -16,15 +18,8 @@ public class RaceParticipantController {
     private RaceParticipantRepository raceParticipantRepository;
 
     @PostMapping
-    public ResponseEntity<RaceParticipant> createRaceParticipant(@RequestBody RaceParticipant raceParticipantDto) {
-        RaceParticipant raceParticipant = new RaceParticipant();
-        raceParticipant.setStartNr(raceParticipantDto.getStartNr());
-        raceParticipant.setFinishTime(raceParticipantDto.getFinishTime());
-        raceParticipant.setName(raceParticipantDto.getName());
-        raceParticipant.setDatabaseEntryTime(raceParticipantDto.getDatabaseEntryTime());
-
+    public ResponseEntity<RaceParticipant> createRaceParticipant(@RequestBody RaceParticipant raceParticipant) {
         raceParticipantRepository.save(raceParticipant);
-
         return new ResponseEntity<>(raceParticipant, HttpStatus.CREATED);
     }
 }

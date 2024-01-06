@@ -1,9 +1,6 @@
 package at.htlle.timetracking;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
@@ -59,5 +56,10 @@ public class RaceParticipant {
 
     public void setDatabaseEntryTime(LocalDateTime databaseEntryTime) {
         this.databaseEntryTime = databaseEntryTime;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.databaseEntryTime = LocalDateTime.now();
     }
 }
