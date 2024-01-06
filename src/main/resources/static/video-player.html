@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Video Player</title>
+</head>
+<body>
+<video id="video-player" controls></video>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoPath = urlParams.get('video');
+    document.getElementById('video-player').src = videoPath;
+</script>
+</body>
+</html>
