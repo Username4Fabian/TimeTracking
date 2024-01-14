@@ -132,6 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
         recordedChunks = [];
         mediaRecorder.start();
         recordingStartTime = new Date(); // Save the start time
+
         setTimeout(() => mediaRecorder.stop(), 4000); // Record for 4 seconds
     }
 

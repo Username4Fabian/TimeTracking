@@ -29,12 +29,11 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static java.awt.image.BufferedImage.TYPE_3BYTE_BGR;
 
@@ -69,8 +68,15 @@ public class VideoController {
             future.get(); // Wait for the thumbnail generation to complete
 
             // Parse the startTime string
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
-            LocalDateTime parsedStartTime = LocalDateTime.parse(startTime.substring(0, 23), formatter);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+            OffsetDateTime offsetDateTime = OffsetDateTime.parse(startTime.substring(0, 24), formatter);
+
+            // Convert OffsetDateTime to ZonedDateTime in the desired timezone
+            ZonedDateTime zonedDateTime = offsetDateTime.atZoneSameInstant(ZoneId.of("Europe/Vienna"));
+
+            // Convert ZonedDateTime to LocalDateTime
+            LocalDateTime parsedStartTime = zonedDateTime.toLocalDateTime();
+
 
             // Save video data to the database
             Video video = new Video();
@@ -102,12 +108,7 @@ public class VideoController {
         String inputPath = System.getProperty("user.dir") + "/src/main/resources/static" + videoPath;
         String outputPath = inputPath.replace(".mp4", "_processed.mp4");
 
-        // Adjust the start time to the start of the day
-        LocalDateTime startOfDay = startTime.toLocalDate().atStartOfDay();
-        Duration durationSinceStartOfDay = Duration.between(startOfDay, startTime);
-
-        // Convert the duration to microseconds
-        long startTimeMicros = durationSinceStartOfDay.toMillis() * 1000;
+        long startTimeMicros = Duration.between(startTime.toLocalDate().atStartOfDay(), startTime).toMillis() * 1000;
 
         IMediaReader mediaReader = ToolFactory.makeReader(inputPath);
         IMediaWriter mediaWriter = ToolFactory.makeWriter(outputPath, mediaReader);
@@ -115,47 +116,15 @@ public class VideoController {
         mediaReader.addListener(new MediaListenerAdapter() {
             @Override
             public void onVideoPicture(IVideoPictureEvent event) {
-                // Get the video picture
-                IVideoPicture pic = event.getPicture();
-
-                // Convert the picture to an image
-                BufferedImage image = new BufferedImage(pic.getWidth(), pic.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-                IConverter converter = ConverterFactory.createConverter(image, pic.getPixelType());
-                image = converter.toImage(pic);
-
-                // Create a graphics object from the image
+                BufferedImage image = convertToBufferedImage(event.getPicture());
                 Graphics graphics = image.getGraphics();
 
-                // Add the timestamp to the image
-                graphics.setColor(Color.WHITE);
-                graphics.setFont(new Font("Arial", Font.BOLD, 30));
+                drawTimestamp(graphics, event.getPicture().getTimeStamp() + startTimeMicros);
 
-                // Add the start time to the frame's timestamp
-                long timestampInMicros = pic.getTimeStamp() + startTimeMicros;
-
-                // Convert the timestamp to milliseconds
-                long timestampInMillis = timestampInMicros / 1000;
-
-                // Convert the timestamp to hours, minutes, seconds, and milliseconds
-                Duration duration = Duration.ofMillis(timestampInMillis);
-                long hours = duration.toHours();
-                duration = duration.minusHours(hours);
-                long minutes = duration.toMinutes();
-                duration = duration.minusMinutes(minutes);
-                long seconds = duration.getSeconds();
-                long millis = duration.minusSeconds(seconds).toMillis();
-
-                // Format the timestamp as a clock time
-                String timestamp = String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
-                graphics.drawString("Timestamp: " + timestamp, 10, 30);
-
-                // Dispose the graphics object
                 graphics.dispose();
 
-                // Create a new event with the modified image
-                IVideoPictureEvent modifiedEvent = new VideoPictureEvent(event.getSource(), image, pic.getTimeStamp(), event.getTimeUnit(), event.getStreamIndex());
+                IVideoPictureEvent modifiedEvent = new VideoPictureEvent(event.getSource(), image, event.getPicture().getTimeStamp(), event.getTimeUnit(), event.getStreamIndex());
                 mediaWriter.onVideoPicture(modifiedEvent);
-                mediaWriter.onVideoPicture(event);
             }
         });
 
@@ -165,6 +134,29 @@ public class VideoController {
 
         System.out.println("Video processed successfully: " + outputPath);
         return videoPath.replace(".mp4", "_processed.mp4");
+    }
+
+    private BufferedImage convertToBufferedImage(IVideoPicture pic) {
+        BufferedImage image = new BufferedImage(pic.getWidth(), pic.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+        IConverter converter = ConverterFactory.createConverter(image, pic.getPixelType());
+        return converter.toImage(pic);
+    }
+
+    private void drawTimestamp(Graphics graphics, long timestampInMicros) {
+        graphics.setColor(Color.WHITE);
+        graphics.setFont(new Font("Arial", Font.BOLD, 30));
+
+        String timestamp = formatTimestamp(timestampInMicros / 1000);
+        graphics.drawString(timestamp, 10, 30);
+    }
+
+    private String formatTimestamp(long timestampInMillis) {
+        long hours = TimeUnit.MILLISECONDS.toHours(timestampInMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timestampInMillis) % 60;
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timestampInMillis) % 60;
+        long millis = timestampInMillis % 1000;
+
+        return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
     }
 
     @GetMapping("/videos")
