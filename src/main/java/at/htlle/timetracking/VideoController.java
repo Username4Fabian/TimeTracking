@@ -1,9 +1,15 @@
 package at.htlle.timetracking;
 
 import com.xuggle.mediatool.IMediaReader;
+import com.xuggle.mediatool.IMediaWriter;
 import com.xuggle.mediatool.MediaListenerAdapter;
 import com.xuggle.mediatool.ToolFactory;
 import com.xuggle.mediatool.event.IVideoPictureEvent;
+import com.xuggle.mediatool.event.VideoPictureEvent;
+import com.xuggle.xuggler.IStream;
+import com.xuggle.xuggler.IVideoPicture;
+import com.xuggle.xuggler.video.ConverterFactory;
+import com.xuggle.xuggler.video.IConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +31,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.concurrent.CompletableFuture;
+
+import static java.awt.image.BufferedImage.TYPE_3BYTE_BGR;
 
 @RestController
 public class VideoController {
@@ -36,7 +46,7 @@ public class VideoController {
     private static final Logger logger = LoggerFactory.getLogger(VideoController.class);
 
     @PostMapping("/upload")
-    public String handleFileUpload(@RequestParam("video") MultipartFile file) {
+    public String handleFileUpload(@RequestParam("video") MultipartFile file, @RequestParam("startTime") String startTime) {
         try {
             String originalFileName = file.getOriginalFilename();
             assert originalFileName != null;
@@ -57,6 +67,10 @@ public class VideoController {
             });
             future.get(); // Wait for the thumbnail generation to complete
 
+            // Parse the startTime string
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            LocalDateTime parsedStartTime = LocalDateTime.parse(startTime.substring(0, 23), formatter);
+
             // Save video data to the database
             Video video = new Video();
             video.setName(fileName); // Use the generated file name
@@ -64,12 +78,67 @@ public class VideoController {
             video.setSize(file.getSize()); // Save the file size
             video.setUploadDate(LocalDateTime.now()); // Save the upload date
             video.setThumbnailPath("/uploaded-thumbnails/" + fileName + ".jpg"); // Save the relative path of the thumbnail
+            video.setStartTime(parsedStartTime); // Save the start time
+            videoRepository.save(video);
+
+            // Process the video to add timestamps
+            String processedVideoPath = processVideo(video.getPath());
+
+            // Delete the original video file
+            Files.delete(Paths.get(System.getProperty("user.dir") + "/src/main/resources/static" + video.getPath()));
+
+            // Update the video record to point to the new video file
+            video.setPath(processedVideoPath);
             videoRepository.save(video);
 
             return "File uploaded successfully: " + fileName;
         } catch (Exception e) {
             return "Upload failed: " + e.getMessage();
         }
+    }
+
+    private String processVideo(String videoPath) {
+        String inputPath = System.getProperty("user.dir") + "/src/main/resources/static" + videoPath;
+        String outputPath = inputPath.replace(".mp4", "_processed.mp4");
+
+        IMediaReader mediaReader = ToolFactory.makeReader(inputPath);
+        IMediaWriter mediaWriter = ToolFactory.makeWriter(outputPath, mediaReader);
+
+        mediaReader.addListener(new MediaListenerAdapter() {
+            @Override
+            public void onVideoPicture(IVideoPictureEvent event) {
+                // Get the video picture
+                IVideoPicture pic = event.getPicture();
+
+                // Convert the picture to an image
+                BufferedImage image = new BufferedImage(pic.getWidth(), pic.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+                IConverter converter = ConverterFactory.createConverter(image, pic.getPixelType());
+                image = converter.toImage(pic);
+
+                // Create a graphics object from the image
+                Graphics graphics = image.getGraphics();
+
+                // Add the timestamp to the image
+                graphics.setColor(Color.WHITE);
+                graphics.setFont(new Font("Arial", Font.BOLD, 30));
+                graphics.drawString("Timestamp: " + pic.getTimeStamp(), 10, 30);
+
+                // Dispose the graphics object
+                graphics.dispose();
+
+                // Create a new event with the modified image
+                IVideoPictureEvent modifiedEvent = new VideoPictureEvent(event.getSource(), image, pic.getTimeStamp(), event.getTimeUnit(), event.getStreamIndex());
+                mediaWriter.onVideoPicture(modifiedEvent);
+                mediaWriter.onVideoPicture(event);
+            }
+        });
+
+        mediaReader.addListener(mediaWriter);
+
+        while (mediaReader.readPacket() == null) ;
+
+        System.out.println("Video processed successfully: " + outputPath);
+        return videoPath.replace(".mp4", "_processed.mp4");
     }
 
     @GetMapping("/videos")
@@ -139,7 +208,8 @@ public class VideoController {
     @GetMapping("/uploaded-videos/{fileName}")
     public ResponseEntity<Resource> serveVideoFile(@PathVariable String fileName) {
         try {
-            Path path = Paths.get(System.getProperty("user.dir") + "/src/main/resources/static/uploaded-videos/" + fileName);
+            String processedFileName = fileName.replace(".mp4", "_processed.mp4");
+            Path path = Paths.get(System.getProperty("user.dir") + "/src/main/resources/static/uploaded-videos/" + processedFileName);
             Resource resource = new UrlResource(path.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
@@ -175,7 +245,7 @@ public class VideoController {
         }
 
         IMediaReader mediaReader = ToolFactory.makeReader(videoPath);
-        mediaReader.setBufferedImageTypeToGenerate(BufferedImage.TYPE_3BYTE_BGR);
+        mediaReader.setBufferedImageTypeToGenerate(TYPE_3BYTE_BGR);
         mediaReader.addListener(new MediaListenerAdapter() {
             @Override
             public void onVideoPicture(IVideoPictureEvent event) {

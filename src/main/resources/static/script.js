@@ -126,9 +126,12 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
+    let recordingStartTime;
+
     function startRecording() {
         recordedChunks = [];
         mediaRecorder.start();
+        recordingStartTime = new Date(); // Save the start time
         setTimeout(() => mediaRecorder.stop(), 4000); // Record for 4 seconds
     }
 
@@ -143,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const formData = new FormData();
         formData.append('video', blob, 'recorded.mp4');
+        formData.append('startTime', recordingStartTime.toISOString()); // Send the start time
         try {
             const response = await fetch('/upload', {
                 method: 'POST',
@@ -166,7 +170,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function captureFrame() {
         if (!motionDetectionActive) {
-            // If motion detection is not active, request the next animation frame and return
             requestAnimationFrame(captureFrame);
             return;
         }

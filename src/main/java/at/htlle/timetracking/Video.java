@@ -15,11 +15,12 @@ public class Video {
     private Long size;
     private LocalDateTime uploadDate;
     private String thumbnailPath;
+    private LocalDateTime startTime;
 
     public Video() {
     }
 
-    public Video(String name, String path, Long size, LocalDateTime uploadDate, String thumbnailPath) {
+    public Video(String name, String path, Long size, LocalDateTime uploadDate, String thumbnailPath, LocalDateTime startTime) {
         this.name = name;
         this.path = path;
         this.size = size;
@@ -72,5 +73,13 @@ public class Video {
     }
     public void setThumbnailPath(String thumbnailPath) {
         this.thumbnailPath = thumbnailPath;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 }

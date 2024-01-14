@@ -9,7 +9,7 @@ body {
     height: 100vh;
     box-sizing: border-box;
     margin-top: 15px;
-    margin-left: -650px
+    margin-left: -400px
 }
 
 button {
@@ -270,4 +270,12 @@ h2 {
     display: flex;
     justify-content: space-between;
 
+}
+
+#clock {
+    position: absolute;
+    top: 80px;
+    right: 850px;
+    color: white;
+    font-size: 24px;
 }
