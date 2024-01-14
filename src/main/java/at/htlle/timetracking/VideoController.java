@@ -6,7 +6,6 @@ import com.xuggle.mediatool.MediaListenerAdapter;
 import com.xuggle.mediatool.ToolFactory;
 import com.xuggle.mediatool.event.IVideoPictureEvent;
 import com.xuggle.mediatool.event.VideoPictureEvent;
-import com.xuggle.xuggler.IStream;
 import com.xuggle.xuggler.IVideoPicture;
 import com.xuggle.xuggler.video.ConverterFactory;
 import com.xuggle.xuggler.video.IConverter;
@@ -30,7 +29,9 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.concurrent.CompletableFuture;
@@ -82,7 +83,7 @@ public class VideoController {
             videoRepository.save(video);
 
             // Process the video to add timestamps
-            String processedVideoPath = processVideo(video.getPath());
+            String processedVideoPath = processVideo(video.getPath(), parsedStartTime);
 
             // Delete the original video file
             Files.delete(Paths.get(System.getProperty("user.dir") + "/src/main/resources/static" + video.getPath()));
@@ -97,9 +98,16 @@ public class VideoController {
         }
     }
 
-    private String processVideo(String videoPath) {
+    private String processVideo(String videoPath, LocalDateTime startTime) {
         String inputPath = System.getProperty("user.dir") + "/src/main/resources/static" + videoPath;
         String outputPath = inputPath.replace(".mp4", "_processed.mp4");
+
+        // Adjust the start time to the start of the day
+        LocalDateTime startOfDay = startTime.toLocalDate().atStartOfDay();
+        Duration durationSinceStartOfDay = Duration.between(startOfDay, startTime);
+
+        // Convert the duration to microseconds
+        long startTimeMicros = durationSinceStartOfDay.toMillis() * 1000;
 
         IMediaReader mediaReader = ToolFactory.makeReader(inputPath);
         IMediaWriter mediaWriter = ToolFactory.makeWriter(outputPath, mediaReader);
@@ -121,7 +129,25 @@ public class VideoController {
                 // Add the timestamp to the image
                 graphics.setColor(Color.WHITE);
                 graphics.setFont(new Font("Arial", Font.BOLD, 30));
-                graphics.drawString("Timestamp: " + pic.getTimeStamp(), 10, 30);
+
+                // Add the start time to the frame's timestamp
+                long timestampInMicros = pic.getTimeStamp() + startTimeMicros;
+
+                // Convert the timestamp to milliseconds
+                long timestampInMillis = timestampInMicros / 1000;
+
+                // Convert the timestamp to hours, minutes, seconds, and milliseconds
+                Duration duration = Duration.ofMillis(timestampInMillis);
+                long hours = duration.toHours();
+                duration = duration.minusHours(hours);
+                long minutes = duration.toMinutes();
+                duration = duration.minusMinutes(minutes);
+                long seconds = duration.getSeconds();
+                long millis = duration.minusSeconds(seconds).toMillis();
+
+                // Format the timestamp as a clock time
+                String timestamp = String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
+                graphics.drawString("Timestamp: " + timestamp, 10, 30);
 
                 // Dispose the graphics object
                 graphics.dispose();
