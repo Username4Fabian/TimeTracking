@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     deleteRacerButton.addEventListener('click', async function() {
         try {
-            const response = await fetch('/delete-racers', { method: 'DELETE' });
+            const response = await fetch('/race-participants', { method: 'DELETE' });
             if (response.ok) {
                 console.log('All racers deleted');
                 // You might want to clear the racer list here

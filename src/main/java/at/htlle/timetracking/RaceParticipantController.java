@@ -28,4 +28,18 @@ public class RaceParticipantController {
                 .sorted(Comparator.comparing(RaceParticipant::getFinishTime))
                 .collect(Collectors.toList());
     }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteRacers() {
+        try {
+            // Delete all racers from the database
+            raceParticipantRepository.deleteAll();
+            raceParticipantRepository.resetSequence();
+
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

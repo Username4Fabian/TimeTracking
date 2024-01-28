@@ -10,14 +10,21 @@ public class RaceParticipant {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "RACEPARTICIPANT_SEQ")
     @SequenceGenerator(name = "RACEPARTICIPANT_SEQ", sequenceName = "RACEPARTICIPANT_SEQ", allocationSize = 1)
-    private Long id;
 
+    private Long id;
     private int startNr;
     private LocalDateTime finishTime;
     private String name;
     private LocalDateTime databaseEntryTime;
 
-    // Getters and setters
+    public RaceParticipant() {
+    }
+
+    public RaceParticipant(int startNr, LocalDateTime finishTime, String name) {
+        this.startNr = startNr;
+        this.finishTime = finishTime;
+        this.name = name;
+    }
 
     public Long getId() {
         return id;
