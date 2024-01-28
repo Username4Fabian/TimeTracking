@@ -16,16 +16,18 @@ public class Video {
     private LocalDateTime uploadDate;
     private String thumbnailPath;
     private LocalDateTime startTime;
+    private Long StartNr;
 
     public Video() {
     }
 
-    public Video(String name, String path, Long size, LocalDateTime uploadDate, String thumbnailPath, LocalDateTime startTime) {
+    public Video(String name, String path, Long size, LocalDateTime uploadDate, String thumbnailPath, LocalDateTime startTime, Long StartNr) {
         this.name = name;
         this.path = path;
         this.size = size;
         this.uploadDate = uploadDate;
         this.thumbnailPath = thumbnailPath;
+        this.StartNr = StartNr;
     }
 
     public Long getId() {
@@ -81,5 +83,13 @@ public class Video {
 
     public LocalDateTime getStartTime() {
         return startTime;
+    }
+
+    public Long getStartNr() {
+        return StartNr;
+    }
+
+    public void setStartNr(Long startNr) {
+        StartNr = startNr;
     }
 }

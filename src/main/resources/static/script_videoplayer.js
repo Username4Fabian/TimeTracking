@@ -119,7 +119,9 @@ form.addEventListener('submit', function(event) {
 });
 
 function formatUploadDate(dateString) {
-    const date = new Date(dateString);
+    let date = new Date(dateString);
+    date.setSeconds(date.getSeconds() - 4); // Subtract 4 seconds processing time
+
     let hours = date.getHours();
     let minutes = date.getMinutes();
     let seconds = date.getSeconds();
@@ -133,6 +135,9 @@ function formatUploadDate(dateString) {
 
     return `${hours}:${minutes}:${seconds}.${milliseconds}`; // Return the time part in the format HH:MM:SS.sss
 }
+toastr.options = {
+    "positionClass": "toast-bottom-full-width"
+}
 
 window.onload = function() {
     fetch('/videos')
@@ -143,6 +148,14 @@ window.onload = function() {
             if (video) {
                 const finishTimeInput = document.getElementById('finishTime');
                 finishTimeInput.value = formatUploadDate(video.uploadDate);
+
+                const startNrInput = document.getElementById('startNr');
+                startNrInput.value = video.startNr;
+
+                // Display a toast notification if the number is 0
+                if (video.startNr === 0) {
+                    toastr.warning('The start number is 0. No number was detected automatically. Please enter the start number manually.');
+                }
             }
         })
         .catch((error) => {

@@ -12,6 +12,7 @@ import com.xuggle.xuggler.video.IConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -39,6 +40,12 @@ import static java.awt.image.BufferedImage.TYPE_3BYTE_BGR;
 
 @RestController
 public class VideoController {
+    @Value("${number.recognition.api.key}")
+    private String apiKey;
+
+    @Value("${number.recognition.custom.prompt}")
+    private String customPrompt;
+
     @Autowired
     private VideoRepository videoRepository;
     @Autowired
@@ -67,6 +74,12 @@ public class VideoController {
             });
             future.get(); // Wait for the thumbnail generation to complete
 
+            // Recognize the number from the thumbnail
+            File thumbnailFile = new File(thumbnailPath);
+            NumberRecognition numberRecognition = new NumberRecognition(apiKey, thumbnailFile.getPath(), customPrompt);
+            String recognizedNumber = numberRecognition.getNumberFromImage();
+            System.out.println("Recognized number: " + recognizedNumber);
+
             // Parse the startTime string
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
             OffsetDateTime offsetDateTime = OffsetDateTime.parse(startTime.substring(0, 24), formatter);
@@ -86,6 +99,7 @@ public class VideoController {
             video.setUploadDate(LocalDateTime.now()); // Save the upload date
             video.setThumbnailPath("/uploaded-thumbnails/" + fileName + ".jpg"); // Save the relative path of the thumbnail
             video.setStartTime(parsedStartTime); // Save the start time
+            video.setStartNr(Long.valueOf(recognizedNumber)); // Save the recognized number
             videoRepository.save(video);
 
             // Process the video to add timestamps
