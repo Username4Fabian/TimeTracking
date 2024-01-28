@@ -1,4 +1,4 @@
-package at.htlle.timetracking;
+package at.htlle.timetracking.models;
 
 import jakarta.persistence.*;
 
@@ -20,10 +20,9 @@ public class RaceParticipant {
     public RaceParticipant() {
     }
 
-    public RaceParticipant(int startNr, LocalDateTime finishTime, String name) {
-        this.startNr = startNr;
-        this.finishTime = finishTime;
-        this.name = name;
+    @PrePersist
+    public void prePersist() {
+        this.databaseEntryTime = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -58,16 +57,4 @@ public class RaceParticipant {
         this.name = name;
     }
 
-    public LocalDateTime getDatabaseEntryTime() {
-        return databaseEntryTime;
-    }
-
-    public void setDatabaseEntryTime(LocalDateTime databaseEntryTime) {
-        this.databaseEntryTime = databaseEntryTime;
-    }
-
-    @PrePersist
-    public void prePersist() {
-        this.databaseEntryTime = LocalDateTime.now();
-    }
 }

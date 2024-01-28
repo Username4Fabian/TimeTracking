@@ -1,12 +1,35 @@
-fetch('/race-participants')
-    .then(response => response.json())
-    .then(data => {
+    const fetchParticipants = async () => {
+        try {
+            const response = await fetch('/race-participants');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    const createCell = (row, textContent, styles = {}) => {
+        const cell = row.insertCell(-1);
+        cell.textContent = textContent;
+        Object.assign(cell.style, styles);
+        return cell;
+    }
+
+    const createSpan = (parent, textContent, styles = {}) => {
+        const span = document.createElement('span');
+        span.textContent = textContent;
+        Object.assign(span.style, styles);
+        parent.appendChild(span);
+        return span;
+    }
+
+    const populateTable = (participants) => {
         const table = document.getElementById('scoreboard');
-        data.forEach((participant, index) => {
+        participants.forEach((participant, index) => {
             const row = table.insertRow(-1);
-            row.insertCell(0).textContent = index + 1;
-            row.insertCell(1).textContent = participant.name;
-            row.insertCell(2).textContent = participant.startNr;
+            createCell(row, index + 1);
+            createCell(row, participant.name);
+            createCell(row, participant.startNr);
 
             // Split the finish time into time and date
             const finishTimeParts = participant.finishTime.split('T');
@@ -14,20 +37,19 @@ fetch('/race-participants')
             const finishDate = finishTimeParts[0];
 
             // Create a cell for the finish time
-            const finishTimeCell = row.insertCell(3);
-            finishTimeCell.style.display = 'flex';
-            finishTimeCell.style.justifyContent = 'space-between';
+            const finishTimeCell = createCell(row, '', { display: 'flex', justifyContent: 'space-between' });
 
             // Create a span for the finish time and append it to the finish time cell
-            const finishTimeSpan = document.createElement('span');
-            finishTimeSpan.textContent = finishTime;
-            finishTimeCell.appendChild(finishTimeSpan);
+            createSpan(finishTimeCell, finishTime);
 
             // Create a span for the finish date and append it to the finish time cell
-            const finishDateSpan = document.createElement('span');
-            finishDateSpan.textContent = finishDate;
-            finishDateSpan.style.fontSize = 'x-small';
-            finishDateSpan.style.color = 'gray';
-            finishTimeCell.appendChild(finishDateSpan);
+            createSpan(finishTimeCell, finishDate, { fontSize: 'x-small', color: 'gray' });
         });
-    });
+    }
+
+    const initializePage = async () => {
+        const participants = await fetchParticipants();
+        populateTable(participants);
+    }
+
+    window.onload = initializePage;

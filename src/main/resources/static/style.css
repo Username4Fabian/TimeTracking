@@ -4,7 +4,7 @@ body {
     font-family: 'Whitney', sans-serif;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Align content to the start (top) */
+    justify-content: flex-start;
     align-items: center;
     height: 100vh;
     box-sizing: border-box;
@@ -140,12 +140,11 @@ input:checked + .slider:before {
 }
 
 input[type=range] {
-    background: #ccc;
     margin-top: 8px;
     position: absolute;
     top: 0;
     width: 100%;
-    background: #36393f; /* Same color as the main background */
+    background: #36393f;
 }
 
 h2 {
@@ -166,7 +165,7 @@ h2 {
     align-items: flex-start;
     justify-content: space-between;
     position: relative;
-    height: 40px; /* Adjust as needed */
+    height: 40px;
 }
 
 .slider-container span {
@@ -176,12 +175,12 @@ h2 {
 }
 
 .slider-container span:first-child {
-    left: 0; /* Align to the left */
+    left: 0;
     margin-top: 26px;
 }
 
 .slider-container span:last-child {
-    right: 0; /* Align to the right */
+    right: 0;
     margin-top: 26px;
 }
 
@@ -196,7 +195,7 @@ h2 {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: center; /* Center items horizontally */
+    align-items: center;
     box-sizing: border-box;
     overflow-y: auto;
 }
@@ -251,14 +250,13 @@ h2 {
     width: 120px;
     height: 90px;
     margin-right: 10px;
-    object-fit: cover; /* Preserve aspect ratio while filling the element's box */
+    object-fit: cover;
 }
 
 .deleteAllButton {
-    bottom: 10px; /* Position it at the bottom of the sidebar */
-    width: 40px; /* Make the button small */
-    margin: 30px;
-    margin-bottom: 4px;
+    bottom: 10px;
+    width: 40px;
+    margin: 30px 30px 4px;
     opacity: 0.5;
 }
 

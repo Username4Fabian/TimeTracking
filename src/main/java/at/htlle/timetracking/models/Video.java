@@ -1,4 +1,4 @@
-package at.htlle.timetracking;
+package at.htlle.timetracking.models;
 
 import jakarta.persistence.*;
 
@@ -73,6 +73,7 @@ public class Video {
     public String getThumbnailPath() {
         return thumbnailPath;
     }
+    
     public void setThumbnailPath(String thumbnailPath) {
         this.thumbnailPath = thumbnailPath;
     }

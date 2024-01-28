@@ -1,5 +1,8 @@
-package at.htlle.timetracking;
+package at.htlle.timetracking.controller;
 
+import at.htlle.timetracking.repositories.VideoRepository;
+import at.htlle.timetracking.models.Video;
+import at.htlle.timetracking.services.NumberRecognition;
 import com.xuggle.mediatool.IMediaReader;
 import com.xuggle.mediatool.IMediaWriter;
 import com.xuggle.mediatool.MediaListenerAdapter;
@@ -50,8 +53,6 @@ public class VideoController{
 
     @Autowired
     private VideoRepository videoRepository;
-    @Autowired
-    private RaceParticipantRepository raceParticipantRepository;
 
     @PostMapping("/upload")
     public String handleFileUpload(@RequestParam("video") MultipartFile file, @RequestParam("startTime") String startTime) {

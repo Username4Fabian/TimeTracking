@@ -1,5 +1,6 @@
-package at.htlle.timetracking;
+package at.htlle.timetracking.repositories;
 
+import at.htlle.timetracking.models.RaceParticipant;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

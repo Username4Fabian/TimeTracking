@@ -1,5 +1,7 @@
-package at.htlle.timetracking;
+package at.htlle.timetracking.controller;
 
+import at.htlle.timetracking.repositories.RaceParticipantRepository;
+import at.htlle.timetracking.models.RaceParticipant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +34,10 @@ public class RaceParticipantController {
     @DeleteMapping
     public ResponseEntity<Void> deleteRacers() {
         try {
-            // Delete all racers from the database
             raceParticipantRepository.deleteAll();
             raceParticipantRepository.resetSequence();
-
-
             return ResponseEntity.ok().build();
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

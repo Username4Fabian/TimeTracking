@@ -1,4 +1,4 @@
-package at.htlle.timetracking;
+package at.htlle.timetracking.services;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

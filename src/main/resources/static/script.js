@@ -1,11 +1,8 @@
-let pageLoaded = false;
-
 document.addEventListener('DOMContentLoaded', function() {
-    pageLoaded = true;
+    let pageLoaded = true;
 
     populateVideoList().then(() => {
         const videoList = document.getElementById('video-list');
-        // Scroll to the bottom of the list
         videoList.lastChild.scrollIntoView();
     });
 
@@ -18,6 +15,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let recordedChunks = [];
     let motionTimeout; // Define the variable
     let motionDetectionActive = false;
+
+    let recordingStartTime;
+    let lastSentTime = Date.now();
+    let sensitivity = 150;
+    let motionDetectionDelay = false;
+
+    const deleteVideosButton = document.getElementById('deleteVideos');
+    const deleteRacerButton = document.getElementById('deleteRacer');
+    const autoscrollCheckbox = document.getElementById('autoscroll');
+    autoscrollCheckbox.checked = true;
 
     if (navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -32,29 +39,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    const autoscrollCheckbox = document.getElementById('autoscroll');
-    autoscrollCheckbox.checked = true;
-
-    let motionDetectionDelay = false;
-
     document.getElementById('toggle-motion').addEventListener('change', function() {
         this.classList.toggle('active');
         motionDetectionActive = this.checked;
-        // Add a delay after toggling motion detection
         motionDetectionDelay = true;
-        setTimeout(() => motionDetectionDelay = false, 2000); // 2 seconds delay
+        setTimeout(() => motionDetectionDelay = false, 1000);
     });
 
-    let sensitivity = 150;
-
     document.getElementById('sensitivity-slider').addEventListener('input', function() {
-        // Subtract the slider value from the sum of the maximum and minimum values to invert it
         sensitivity = 300 - this.value;
-        // console.log('Sensitivity: ', sensitivity);
     });
 
     window.addEventListener('blur', function() {
-        // Only add a delay if the page has finished loading
         if (pageLoaded) {
             motionDetectionDelay = true;
             setTimeout(() => motionDetectionDelay = false, 2000); // 2 seconds delay
@@ -63,23 +59,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('visibilitychange', function() {
         if (document.visibilityState === 'visible') {
-            // Introduce a delay when the tab becomes visible
             introduceMotionDetectionDelay();
         }
     });
-
-    const deleteVideosButton = document.getElementById('deleteVideos');
-    const deleteRacerButton = document.getElementById('deleteRacer');
 
     deleteVideosButton.addEventListener('click', async function() {
         try {
             const response = await fetch('/delete-videos', { method: 'DELETE' });
             if (response.ok) {
                 console.log('All videos deleted');
-                // Clear the video list
                 document.getElementById('video-list').innerHTML = '';
-                // Fetch the videos again to update the videos array
-                fetchVideos();
+                await fetchVideos();
             } else {
                 console.error('Failed to delete videos');
             }
@@ -93,7 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch('/race-participants', { method: 'DELETE' });
             if (response.ok) {
                 console.log('All racers deleted');
-                // You might want to clear the racer list here
             } else {
                 console.error('Failed to delete racers');
             }
@@ -126,8 +115,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    let recordingStartTime;
-
     function startRecording() {
         recordedChunks = [];
         mediaRecorder.start();
@@ -135,8 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         setTimeout(() => mediaRecorder.stop(), 4000); // Record for 4 seconds
     }
-
-    let lastSentTime = Date.now();
 
     async function sendVideoToServer(blob) {
         const currentTime = Date.now();
@@ -155,12 +140,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             const text = await response.text();
             console.log('Server response: ', text);
-            // Update the time of the last video sent
             lastSentTime = Date.now();
         } catch (error) {
             console.error('Error sending video to server: ', error);
         }
-
         setTimeout(() => {
             // Refresh the list of videos
             const videoList = document.getElementById('video-list');
@@ -185,7 +168,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 startRecording();
             }
         }
-
         prevImageData = currentImageData;
         requestAnimationFrame(captureFrame);
     }

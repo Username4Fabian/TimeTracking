@@ -11,8 +11,6 @@ body {
     margin-top: 15px;
 }
 
-
-
 input[type=submit] {
     background-color: #7289da;
     color: #ffffff;
@@ -27,7 +25,6 @@ input[type=submit]:hover, input[type=submit]:active {
     background-color: #677bc4;
 }
 
-/* Style the sidebar */
 .sidebar {
     height: 100%;
     width: 500px;
@@ -45,20 +42,18 @@ input[type=submit]:hover, input[type=submit]:active {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Style the input fields in the sidebar */
 .sidebar input {
     margin-top: 4px;
     margin-bottom: 40px;
     padding: 10px;
     width: 80%;
-    background-color: #2c2f33; /* Match the input field color from style.css */
+    background-color: #2c2f33;
     color: #dcddde;
     border: none;
     border-radius: 3px;
     font-size: 120%;
 }
 
-/* Style the labels in the sidebar */
 .sidebar label {
     color: #8e9297;
     font-size: 14px;

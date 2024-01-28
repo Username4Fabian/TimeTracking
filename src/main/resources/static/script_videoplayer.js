@@ -1,86 +1,37 @@
 const urlParams = new URLSearchParams(window.location.search);
 const videoName = urlParams.get('video');
 const videoPlayer = document.getElementById('video-player');
-videoPlayer.src = `/uploaded-videos/${videoName}`;
-videoPlayer.type = 'video/mp4';
-
 const videoHeadline = document.getElementById('video-headline');
-videoHeadline.textContent = `Playing:  ${videoName}`;
-
 const prevVideoButton = document.getElementById('prev-video');
 const nextVideoButton = document.getElementById('next-video');
-
-prevVideoButton.addEventListener('click', loadPrevVideo);
-nextVideoButton.addEventListener('click', loadNextVideo);
+const form = document.getElementById('race-participant-form');
 
 let videos = [];
 
-fetch('/videos')
-    .then(response => response.json())
-    .then(data => {
-        videos = data;
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+const setVideoSource = (videoName) => {
+    videoPlayer.src = `/uploaded-videos/${videoName}`;
+    videoPlayer.type = 'video/mp4';
+    videoHeadline.textContent = `Playing:  ${videoName}`;
+}
 
-function loadPrevVideo() {
-    const currentIndex = videos.findIndex(video => video.name === videoName);
-    if (currentIndex > 0) {
-        const prevVideo = videos[currentIndex - 1];
-        window.location.href = `/video-player.html?video=${prevVideo.name}`;
+const loadVideo = (videoIndex) => {
+    if (videoIndex >= 0 && videoIndex < videos.length) {
+        const video = videos[videoIndex];
+        window.location.href = `/video-player.html?video=${video.name}`;
     }
 }
 
-function loadNextVideo() {
+const loadPrevVideo = () => {
     const currentIndex = videos.findIndex(video => video.name === videoName);
-    if (currentIndex < videos.length - 1) {
-        // There is a next video in the array, load it
-        const nextVideo = videos[currentIndex + 1];
-        window.location.href = `/video-player.html?video=${nextVideo.name}`;
-    } else {
-        // The current video is the last one in the array, fetch the videos from the server again
-        fetch('/videos')
-            .then(response => response.json())
-            .then(data => {
-                const newVideos = data;
-                if (newVideos.length > videos.length) {
-                    // There is a new video, add it to the array and load it
-                    videos = newVideos;
-                    const nextVideo = videos[currentIndex + 1];
-                    window.location.href = `/video-player.html?video=${nextVideo.name}`;
-                }
-                // If there isn't a new video, do nothing
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-    }
+    loadVideo(currentIndex - 1);
 }
 
-function fetchVideos() {
-    fetch('/videos')
-        .then(response => response.json())
-        .then(data => {
-            if (data.length === 0) {
-                // The database with the videos is cleared, clear the video list
-                videos = [];
-                alert('The database has been cleared. There are no videos to play.');
-            } else {
-                videos = data;
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
+const loadNextVideo = () => {
+    const currentIndex = videos.findIndex(video => video.name === videoName);
+    loadVideo(currentIndex + 1);
 }
 
-// Attach the fetchVideos function to the click event of the buttons
-prevVideoButton.addEventListener('click', fetchVideos);
-nextVideoButton.addEventListener('click', fetchVideos);
-
-const form = document.getElementById('race-participant-form');
-form.addEventListener('submit', function(event) {
+const submitForm = async (event) => {
     event.preventDefault();
 
     const startNr = document.getElementById('startNr').value;
@@ -99,26 +50,25 @@ form.addEventListener('submit', function(event) {
         uploadDate.setHours(hours, minutes, seconds, milliseconds);
         const combinedDateTime = uploadDate.toISOString();
 
-        const data = { startNr, finishTime: combinedDateTime, name };
+        const formData = { startNr, finishTime: combinedDateTime, name };
 
-        fetch('/race-participants', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
+        try {
+            const response = await fetch('/race-participants', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
             });
+            const responseData = await response.json();
+            console.log('Success:', responseData);
+        } catch (error) {
+            console.error('Error:', error);
+        }
     }
-});
+}
 
-function formatUploadDate(dateString) {
+const formatUploadDate = (dateString) => {
     let date = new Date(dateString);
     date.setSeconds(date.getSeconds() - 4); // Subtract 4 seconds processing time
 
@@ -135,34 +85,42 @@ function formatUploadDate(dateString) {
 
     return `${hours}:${minutes}:${seconds}.${milliseconds}`; // Return the time part in the format HH:MM:SS.sss
 }
+
+const initializePage = async () => {
+    try {
+        const response = await fetch('/videos');
+        const data = await response.json();
+        videos = data;
+        const video = videos.find(video => video.name === videoName);
+        if (video) {
+            const finishTimeInput = document.getElementById('finishTime');
+            finishTimeInput.value = formatUploadDate(video.uploadDate);
+
+            const startNrInput = document.getElementById('startNr');
+            startNrInput.value = video.startNr;
+
+            // Display a toast notification if the number is 0
+            if (video.startNr === 0) {
+                toastr.warning('The start number is 0. No number was detected automatically. Please enter the start number manually.');
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+const openScoreboard = () => {
+    window.open('/scoreboard.html', '_blank');
+}
+
+// Event listeners
+prevVideoButton.addEventListener('click', loadPrevVideo);
+nextVideoButton.addEventListener('click', loadNextVideo);
+form.addEventListener('submit', submitForm);
+window.onload = initializePage;
+
+setVideoSource(videoName);
+
 toastr.options = {
     "positionClass": "toast-bottom-full-width"
-}
-
-window.onload = function() {
-    fetch('/videos')
-        .then(response => response.json())
-        .then(data => {
-            videos = data;
-            const video = videos.find(video => video.name === videoName);
-            if (video) {
-                const finishTimeInput = document.getElementById('finishTime');
-                finishTimeInput.value = formatUploadDate(video.uploadDate);
-
-                const startNrInput = document.getElementById('startNr');
-                startNrInput.value = video.startNr;
-
-                // Display a toast notification if the number is 0
-                if (video.startNr === 0) {
-                    toastr.warning('The start number is 0. No number was detected automatically. Please enter the start number manually.');
-                }
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-}
-
-function openScoreboard() {
-    window.open('/scoreboard.html', '_blank');
 }
