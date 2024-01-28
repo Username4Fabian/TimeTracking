@@ -194,6 +194,14 @@ public class VideoController{
         File thumbnailFile = new File(thumbnailPath);
         NumberRecognition numberRecognition = new NumberRecognition(apiKey, thumbnailFile.getPath(), customPrompt);
         String recognizedNumber = numberRecognition.getNumberFromImage();
+
+        try {
+            Integer.parseInt(recognizedNumber);
+        } catch (NumberFormatException e) {
+            System.out.println("Recognized value is not a number: " + recognizedNumber);
+            recognizedNumber = "0";
+        }
+
         System.out.println("Recognized number: " + recognizedNumber);
         return recognizedNumber;
     }
