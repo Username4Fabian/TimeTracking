@@ -15,6 +15,7 @@ public class RaceParticipant {
     private int startNr;
     private LocalDateTime finishTime;
     private String name;
+    @SuppressWarnings("unused")
     private LocalDateTime databaseEntryTime;
 
     public RaceParticipant() {

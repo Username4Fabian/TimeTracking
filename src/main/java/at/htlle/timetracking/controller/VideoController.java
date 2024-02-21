@@ -1,7 +1,7 @@
 package at.htlle.timetracking.controller;
 
-import at.htlle.timetracking.repositories.VideoRepository;
 import at.htlle.timetracking.models.Video;
+import at.htlle.timetracking.repositories.VideoRepository;
 import at.htlle.timetracking.services.NumberRecognition;
 import com.xuggle.mediatool.IMediaReader;
 import com.xuggle.mediatool.IMediaWriter;
@@ -41,9 +41,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static java.awt.image.BufferedImage.TYPE_3BYTE_BGR;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
-public class VideoController{
+public class VideoController {
     private static final Logger logger = LoggerFactory.getLogger(VideoController.class);
 
     @Value("${number.recognition.api.key}")
@@ -55,8 +58,9 @@ public class VideoController{
     private VideoRepository videoRepository;
 
     @PostMapping("/upload")
-    public String handleFileUpload(@RequestParam("video") MultipartFile file, @RequestParam("startTime") String startTime) {
-        try{
+    public String handleFileUpload(@RequestParam("video") MultipartFile file,
+            @RequestParam("startTime") String startTime) {
+        try {
             String originalFileName = file.getOriginalFilename();
             assert originalFileName != null;
             String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
@@ -104,7 +108,6 @@ public class VideoController{
         return serveFileFromDirectory("/src/main/resources/static/uploaded-videos/", processedFileName);
     }
 
-
     private ResponseEntity<Resource> serveFileFromDirectory(String directoryPath, String fileName) {
         try {
             Path path = Paths.get(System.getProperty("user.dir") + directoryPath + fileName);
@@ -120,9 +123,11 @@ public class VideoController{
         }
     }
 
-    private void deleteAllFiles () throws IOException {
-        Path videosDirectory = Paths.get(System.getProperty("user.dir") + "/src/main/resources/static/uploaded-videos/");
-        Path thumbnailsDirectory = Paths.get(System.getProperty("user.dir") + "/src/main/resources/static/uploaded-thumbnails/");
+    private void deleteAllFiles() throws IOException {
+        Path videosDirectory = Paths
+                .get(System.getProperty("user.dir") + "/src/main/resources/static/uploaded-videos/");
+        Path thumbnailsDirectory = Paths
+                .get(System.getProperty("user.dir") + "/src/main/resources/static/uploaded-thumbnails/");
         Files.walk(videosDirectory)
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
@@ -142,6 +147,8 @@ public class VideoController{
         IMediaReader mediaReader = ToolFactory.makeReader(inputPath);
         IMediaWriter mediaWriter = ToolFactory.makeWriter(outputPath, mediaReader);
 
+        // ...
+
         mediaReader.addListener(new MediaListenerAdapter() {
             @Override
             public void onVideoPicture(IVideoPictureEvent event) {
@@ -152,20 +159,23 @@ public class VideoController{
 
                 graphics.dispose();
 
-                IVideoPictureEvent modifiedEvent = new VideoPictureEvent(event.getSource(), image, event.getPicture().getTimeStamp(), event.getTimeUnit(), event.getStreamIndex());
+                IVideoPictureEvent modifiedEvent = new VideoPictureEvent(event.getSource(), image,
+                        event.getPicture().getTimeStamp(), event.getTimeUnit(), event.getStreamIndex());
                 mediaWriter.onVideoPicture(modifiedEvent);
             }
         });
 
         mediaReader.addListener(mediaWriter);
 
-        while (mediaReader.readPacket() == null) ;
+        while (mediaReader.readPacket() == null)
+            ;
 
         System.out.println("Video processed successfully: " + outputPath);
         return videoPath.replace(".mp4", "_processed.mp4");
     }
 
-    private void saveVideo(String fileName, MultipartFile file, String recognizedNumber, LocalDateTime parsedStartTime) throws IOException {
+    private void saveVideo(String fileName, MultipartFile file, String recognizedNumber, LocalDateTime parsedStartTime)
+            throws IOException {
         Video video = new Video();
         video.setName(fileName);
         video.setPath("/uploaded-videos/" + fileName);
@@ -182,7 +192,7 @@ public class VideoController{
         videoRepository.save(video);
     }
 
-    private LocalDateTime dateFormatter(String startTime){
+    private LocalDateTime dateFormatter(String startTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(startTime.substring(0, 24), formatter);
         ZonedDateTime zonedDateTime = offsetDateTime.atZoneSameInstant(ZoneId.of("Europe/Vienna"));
@@ -206,9 +216,10 @@ public class VideoController{
         return recognizedNumber;
     }
 
-    private String thumbnailManager(String fileName){
+    private String thumbnailManager(String fileName) {
         String videoPath = System.getProperty("user.dir") + "/src/main/resources/static/uploaded-videos/" + fileName;
-        String thumbnailPath = System.getProperty("user.dir") + "/src/main/resources/static/uploaded-thumbnails/" + fileName + ".jpg";
+        String thumbnailPath = System.getProperty("user.dir") + "/src/main/resources/static/uploaded-thumbnails/"
+                + fileName + ".jpg";
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             generateThumbnail(videoPath, thumbnailPath);
         });
@@ -244,16 +255,17 @@ public class VideoController{
                 }
             }
         });
-        while (mediaReader.readPacket() == null) ; // start processing
+        while (mediaReader.readPacket() == null)
+            ; // start processing
     }
 
-    private void fileSize(String originalFileName, MultipartFile file){
+    private void fileSize(String originalFileName, MultipartFile file) {
         double fileSizeInMb = file.getSize() / (1024.0 * 1024.0);
         logger.info("Received file: " + originalFileName + ", size: " + fileSizeInMb + " MB");
         logger.info("File size: " + file.getSize());
     }
 
-    private String generateFileName(String extension){
+    private String generateFileName(String extension) {
         long currentNumber = videoRepository.findMaxId() + 1;
         return "video_" + currentNumber + extension;
     }
@@ -267,7 +279,7 @@ public class VideoController{
     }
 
     private BufferedImage convertToBufferedImage(IVideoPicture pic) {
-        BufferedImage image = new BufferedImage(pic.getWidth(), pic.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage image = new BufferedImage(pic.getWidth(), pic.getHeight(), TYPE_3BYTE_BGR);
         IConverter converter = ConverterFactory.createConverter(image, pic.getPixelType());
         return converter.toImage(pic);
     }

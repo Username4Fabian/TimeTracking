@@ -1,6 +1,5 @@
 package at.htlle.timetracking.services;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -9,6 +8,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+
+import javax.imageio.ImageIO;
+
 import org.json.JSONObject;
 
 /**
@@ -55,6 +57,7 @@ public class NumberRecognition {
     public String getNumberFromImage() throws IOException {
         String base64Image = encodeImage();
 
+        @SuppressWarnings("deprecation")
         URL url = new URL("https://api.openai.com/v1/chat/completions");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
