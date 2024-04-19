@@ -173,22 +173,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function detectMotion(prevImageData, currentImageData) {
+        /* Both the motionDetectionDelay and the document
+        hasFocus () are used to prevent motion detection
+        while the page is initially loading or the user is
+        not focused on the page */
         if (motionDetectionDelay || !document.hasFocus()) {
             return false;
         }
 
         let motionPixels = 0;
-        for (let i = 0; i < currentImageData.data.length; i += 4) {
+        for (let i = 0; i < currentImageData.data.length; i += 4) { // loop through the image data 
             let rDiff = Math.abs(prevImageData.data[i] - currentImageData.data[i]);
             let gDiff = Math.abs(prevImageData.data[i + 1] - currentImageData.data[i + 1]);
             let bDiff = Math.abs(prevImageData.data[i + 2] - currentImageData.data[i + 2]);
 
-            if ((rDiff + gDiff + bDiff) > sensitivity) { // Use the sensitivity variable
+            if ((rDiff + gDiff + bDiff) > sensitivity) { // check if the difference is greater than the sensitivity
                 motionPixels++;
             }
         }
-        // Consider motion detected if a significant number of pixels have changed
-        return motionPixels > (currentImageData.width * currentImageData.height * 0.02); // Adjust thres
+        // return true if more than 2% of the pixels show motion
+        return motionPixels > (currentImageData.width * currentImageData.height * 0.02);
     }
 
     function updateMotionIndicator() {
