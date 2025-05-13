@@ -33,8 +33,6 @@ Motion Highlighter is a sophisticated web application that provides a live video
 
 - [Maven](https://maven.apache.org/): Used for building and managing the project. Maven is a powerful project management tool that provides developers with a comprehensive understanding of their project's state.
 
-- [TypeScript](https://www.typescriptlang.org/): Used for static typing in JavaScript. TypeScript is a superset of JavaScript that adds static types, making it easier to write robust code.
-
 ## Setup and Installation
 
 1. Clone the repository to your local machine using `git clone <repository_link>`.
